@@ -167,6 +167,18 @@ function updateChartDisplay() {
 }
 
 function getNextUpdateTime() {
+    // If we have raw data, use the latest reading's timestamp
+    if (rawData && rawData.length > 0) {
+        const latestReading = rawData[0];  // Latest reading is at index 0
+        const lastUpdateTime = new Date(latestReading.collected_at);
+        const nextUpdate = new Date(lastUpdateTime);
+        nextUpdate.setMinutes(lastUpdateTime.getMinutes() + refreshInterval);
+        nextUpdate.setSeconds(2);
+        nextUpdate.setMilliseconds(0);
+        return nextUpdate;
+    }
+    
+    // Fallback to current time if no data is available
     const now = new Date();
     const nextUpdate = new Date(now);
     nextUpdate.setMinutes(now.getMinutes() + refreshInterval);

@@ -30,29 +30,21 @@ def check_temperature_alert(temperature: float) -> AlertState:
     
     now = datetime.now(timezone.utc)
     
-    # Check if temperature is above threshold
+    # Handle temperature above threshold
     if temperature >= TEMPERATURE_THRESHOLD:
-        # Reset alert state if cooldown has expired
-        if _is_in_alert_state and _last_notification_time is not None:
-            time_since_last = now - _last_notification_time
-            if time_since_last >= NOTIFICATION_COOLDOWN:
-                _is_in_alert_state = False
-        
-        if not _is_in_alert_state:
-            _is_in_alert_state = True
-            # Check cooldown period for new alerts
-            if _last_notification_time is not None:
-                time_since_last = now - _last_notification_time
-                if time_since_last < NOTIFICATION_COOLDOWN:
-                    return AlertState.NO_ALERT
-            
-            # Update last notification time
+        _is_in_alert_state = True
+        if _last_notification_time is None or (now - _last_notification_time) >= NOTIFICATION_COOLDOWN:
             _last_notification_time = now
             return AlertState.ALERT_HIGH
-    # Check if temperature has returned to normal (below margin)
-    elif _is_in_alert_state and temperature < (TEMPERATURE_THRESHOLD - TEMPERATURE_NORMAL_MARGIN):
-        _is_in_alert_state = False
-        _last_notification_time = now
-        return AlertState.ALERT_NORMAL
-            
+        return AlertState.NO_ALERT
+    
+    # Handle temperature below normal margin
+    if temperature <= (TEMPERATURE_THRESHOLD - TEMPERATURE_NORMAL_MARGIN):
+        if _is_in_alert_state:
+            _is_in_alert_state = False
+            _last_notification_time = now
+            return AlertState.ALERT_NORMAL
+        return AlertState.NO_ALERT
+    
+    # Temperature is in hysteresis zone
     return AlertState.NO_ALERT 

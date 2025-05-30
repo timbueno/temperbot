@@ -106,7 +106,7 @@ class TestAPI(unittest.TestCase):
         """Test the main temperature display page."""
         response = self.app.get('/')
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Temperature Monitor', response.data)
+        self.assertIn(b'TemperBot', response.data)
         self.assertIn(str(self.test_temp).encode(), response.data)
         
     def test_temperature_alert_states(self):

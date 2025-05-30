@@ -58,6 +58,8 @@ If you're running TemperBot in a Proxmox LXC container, you'll need to configure
      lxc.mount.entry: /dev/hidraw1 dev/hidraw1 none bind,optional,create=file
      ```
 
+> **Note:** Include the relevant hidraw* that applies to your device. They will not necessarily be hidraw0 and hidraw1.
+
 3. Restart the LXC container after making these changes.
 
 ## Installation

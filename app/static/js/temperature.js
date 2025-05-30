@@ -38,7 +38,7 @@ function formatTime(timestamp) {
 
 function updateLatestTemperature() {
     console.log('Fetching latest temperature...');
-    fetch('/temperature/latest')
+    return fetch('/temperature/latest')
         .then(response => response.json())
         .then(data => {
             console.log('Received temperature data:', data);
@@ -65,23 +65,27 @@ function updateLatestTemperature() {
             }
             
             console.log('Temperature updated successfully');
+            return data;
         })
         .catch(error => {
             console.error('Error fetching latest temperature:', error);
+            throw error;
         });
 }
 
 function updateChartData() {
     console.log('Fetching chart data...');
-    fetch('/temperature/hourly')
+    return fetch('/temperature/hourly')
         .then(response => response.json())
         .then(data => {
             console.log('Received chart data:', data);
             rawData = data;  // Store raw data
             updateChartDisplay();
+            return data;
         })
         .catch(error => {
             console.error('Error fetching chart data:', error);
+            throw error;
         });
 }
 
@@ -242,11 +246,17 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.add('transition');
     }
 
-    // Initial data load
-    updateLatestTemperature();
-    updateChartData();
-    
-    // Start the update scheduling
-    scheduleNextUpdate();
-    console.log(`Update scheduling started with interval of ${refreshInterval} minutes`);
+    // Initial data load with Promise.all to wait for both updates
+    Promise.all([
+        updateLatestTemperature(),
+        updateChartData()
+    ]).then(() => {
+        // Start the update scheduling only after initial data is loaded
+        scheduleNextUpdate();
+        console.log(`Update scheduling started with interval of ${refreshInterval} minutes`);
+    }).catch(error => {
+        console.error('Error during initial data load:', error);
+        // Still try to schedule updates even if initial load fails
+        scheduleNextUpdate();
+    });
 }); 

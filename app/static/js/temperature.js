@@ -175,6 +175,9 @@ function getNextUpdateTime() {
         nextUpdate.setMinutes(lastUpdateTime.getMinutes() + refreshInterval);
         nextUpdate.setSeconds(2);
         nextUpdate.setMilliseconds(0);
+        console.log('Existing Data! Setting Next Update Time', {
+            nextUpdate
+        });
         return nextUpdate;
     }
     
@@ -184,6 +187,9 @@ function getNextUpdateTime() {
     nextUpdate.setMinutes(now.getMinutes() + refreshInterval);
     nextUpdate.setSeconds(2);
     nextUpdate.setMilliseconds(0);
+    console.log('No data! Setting Next Update Time', {
+        nextUpdate
+    });
     return nextUpdate;
 }
 

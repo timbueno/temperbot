@@ -1,0 +1,110 @@
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    transition: background-color 0.5s ease;
+}
+
+body.alert {
+    background-color: #ffebee;  /* Pale red */
+}
+
+body.normal {
+    background-color: #e8f5e9;  /* Pale green */
+}
+
+body.transition {
+    background-color: #fff3e0;  /* Pale orange for transition state */
+}
+
+.temperature {
+    font-size: 8rem;
+    font-weight: 300;
+    margin: 0;
+    transition: color 0.5s ease;
+}
+
+/* Temperature text colors for different states */
+body.alert .temperature {
+    color: rgba(139, 0, 0, 0.85);  /* Dark red with transparency */
+}
+
+body.normal .temperature {
+    color: rgba(0, 100, 0, 0.85);  /* Dark green with transparency */
+}
+
+body.transition .temperature {
+    color: rgba(139, 69, 19, 0.85);  /* Dark orange with transparency */
+}
+
+.unit {
+    font-size: 3rem;
+    font-weight: 300;
+    margin-left: 0.5rem;
+    transition: color 0.5s ease;
+}
+
+/* Unit text colors for different states */
+body.alert .unit {
+    color: rgba(139, 0, 0, 0.7);  /* Slightly lighter dark red */
+}
+
+body.normal .unit {
+    color: rgba(0, 100, 0, 0.7);  /* Slightly lighter dark green */
+}
+
+body.transition .unit {
+    color: rgba(139, 69, 19, 0.7);  /* Slightly lighter dark orange */
+}
+
+.timestamp {
+    font-size: 1.2rem;
+    color: #666;
+    margin-top: 1rem;
+}
+
+.status {
+    font-size: 1.5rem;
+    margin-top: 1rem;
+    color: #333;
+}
+
+.unit-toggle {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.unit-toggle:hover {
+    background-color: rgba(255, 255, 255, 1);
+}
+
+.chart-container {
+    width: 80%;
+    max-width: 800px;
+    height: 200px;
+    margin-top: 2rem;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.refresh-info {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    font-size: 0.8rem;
+    color: #666;
+} 

@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  web:
+    image: ghcr.io/timbueno/temperature-monitor:-latest
+    ports:
+      - "5000:5000"
+    volumes:
+      - temperature_data:/tmp
+    devices:
+      - "/dev/hidraw4:/dev/hidraw4"
+    environment:
+      - DATA_RETENTION_DAYS=14
+      - POLL_INTERVAL_MINUTES=1
+      - TEMPERATURE_THRESHOLD=23.5
+      - TEMPERATURE_NORMAL_MARGIN=1.0
+      - TEMPERATURE_SOURCE=external
+      - PUSHOVER_USER_KEY=your_pushover_user_key_here
+      - PUSHOVER_API_TOKEN=your_pushover_api_token_here
+      - NOTIFICATION_COOLDOWN_HOURS=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  temperature_data: 

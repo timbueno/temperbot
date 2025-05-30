@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature Monitor</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/temperature.css') }}">
+</head>
+<body data-temperature="{{ temperature }}"
+      data-refresh-interval="{{ refresh_interval }}"
+      data-is-alert="{{ is_alert|tojson }}"
+      data-is-normal="{{ is_normal|tojson }}"
+      data-threshold="{{ temperature_threshold }}">
+    <button class="unit-toggle" onclick="toggleUnit()">Switch to °F</button>
+    <div class="temperature-container">
+        <h1 class="temperature">
+            <span id="temperature-value">{{ "%.1f"|format(temperature) }}</span>
+            <span id="temperature-unit" class="unit">°C</span>
+        </h1>
+        <div class="timestamp">Last updated: {{ timestamp }}</div>
+    </div>
+    <div class="chart-container">
+        <canvas id="temperatureChart"></canvas>
+    </div>
+    <div class="refresh-info" id="refresh-info"></div>
+
+    <script src="{{ url_for('static', filename='js/temperature.js') }}"></script>
+</body>
+</html> 

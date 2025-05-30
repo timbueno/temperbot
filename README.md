@@ -1,4 +1,4 @@
-# Temperature Logger
+# TemperBot
 
 A robust temperature monitoring system built with Python, Flask, and Docker. This application periodically reads temperature data from a sensor, stores it in a SQLite database, and provides an API to access the temperature history.
 

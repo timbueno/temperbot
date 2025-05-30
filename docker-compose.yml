@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   web:
-    image: ghcr.io/timbueno/temperature-monitor:-latest
+    image: ghcr.io/timbueno/temperbot:-latest
     ports:
       - "5000:5000"
     volumes:

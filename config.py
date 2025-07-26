@@ -40,4 +40,18 @@ PUSHOVER_USER_KEY = os.getenv('PUSHOVER_USER_KEY', 'your_pushover_user_key_here'
 PUSHOVER_API_TOKEN = os.getenv('PUSHOVER_API_TOKEN', 'your_pushover_api_token_here')
 
 # Notification settings
-NOTIFICATION_COOLDOWN = timedelta(hours=safe_int(os.getenv('NOTIFICATION_COOLDOWN_HOURS'), 1)) 
+NOTIFICATION_COOLDOWN = timedelta(hours=safe_int(os.getenv('NOTIFICATION_COOLDOWN_HOURS'), 1))
+
+# Temperature calibration data
+# Array of calibration points: [{"temp": device_reading, "actual": true_temperature}, ...]
+# The system will use linear interpolation between points and extrapolation beyond the range
+# 
+# Example calibration where device reads 5°C higher than actual:
+# TEMPERATURE_CALIBRATION_DATA = [
+#     {"temp": 5, "actual": 0},
+#     {"temp": 25, "actual": 20}
+# ]
+#
+# For simple offset correction, use a single point:
+# TEMPERATURE_CALIBRATION_DATA = [{"temp": 20, "actual": 18}]  # Device reads 2°C high
+TEMPERATURE_CALIBRATION_DATA = [] 

@@ -175,7 +175,7 @@ class USBRead(object):
 
     A dictionary of temperature and humidity info is returned.
     '''
-    path = os.path.join('/dev', device)
+    path = device if os.path.isabs(device) else os.path.join('/dev', device)
     fd = os.open(path, os.O_RDWR)
 
     firmware = self._read_hidraw_firmware(fd, self.verbose)
@@ -280,7 +280,7 @@ class USBRead(object):
     temperature and humidity info is returned.
     '''
 
-    path = os.path.join('/dev', device)
+    path = device if os.path.isabs(device) else os.path.join('/dev', device)
     s = serial.Serial(path, 9600)
     s.bytesize = serial.EIGHTBITS
     s.parity = serial.PARITY_NONE
@@ -321,11 +321,13 @@ class USBRead(object):
     '''Read the firmware version, temperature, and humidity from the device and
     return a dictionary containing these data.
     '''
-    # Use the last device found
-    if self.device.startswith('hidraw'):
+    device_name = os.path.basename(self.device)
+    if device_name.startswith('hidraw'):
       return self._read_hidraw(self.device)
-    if self.device.startswith('tty'):
+    if device_name.startswith('tty'):
       return self._read_serial(self.device)
+    if os.path.exists(self.device):
+      return self._read_hidraw(self.device)
     return {'error': 'No usable hid/tty devices available'}
 
 class Temper(object):

@@ -83,5 +83,21 @@ class TestHardware(unittest.TestCase):
         temp = read_temperature()
         self.assertEqual(temp, 22.5)
 
+    @patch('app.hardware.TEMPERATURE_DEVICE', '/dev/temperbot')
+    @patch('app.hardware.USBRead')
+    @patch('app.hardware.Temper')
+    def test_read_temperature_uses_configured_device(self, mock_temper, mock_usbread):
+        """Test that configured device path bypasses USB auto-discovery."""
+        mock_reader = mock_usbread.return_value
+        mock_reader.read.return_value = [{
+            f'{TEMPERATURE_SOURCE} temperature': 22.5
+        }]
+
+        temp = read_temperature()
+
+        self.assertEqual(temp, 22.5)
+        mock_usbread.assert_called_once_with('/dev/temperbot')
+        mock_temper.assert_not_called()
+
 if __name__ == '__main__':
     unittest.main() 

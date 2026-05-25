@@ -20,10 +20,10 @@ A robust temperature monitoring system built with Python, Flask, and Docker. Thi
 
 > **Note:** Different TEMPer device models may have different vendor and product IDs. For a comprehensive list of supported devices and their IDs, please refer to the [temper library documentation](https://github.com/ccwienk/temper). The documentation includes detailed information about various TEMPer models and their corresponding USB identifiers.
 
-To ensure proper access to the temperature sensor, you need to create a udev rule. Create a new file at `/etc/udev/rules.d/99-temperbot.rules` with the following content:
+To ensure proper access to the temperature sensor and give it a stable name, create a udev rule. Create a new file at `/etc/udev/rules.d/99-temperbot.rules` with the following content:
 
 ```
-SUBSYSTEM=="hidraw", ATTRS{idVendor}=="3553", ATTRS{idProduct}=="a001", MODE="0666", GROUP="appuser"
+SUBSYSTEM=="hidraw", ATTRS{idVendor}=="3553", ATTRS{idProduct}=="a001", SYMLINK+="temperbot", MODE="0666", GROUP="appuser"
 ```
 
 After creating the rule, reload the udev rules:
@@ -54,11 +54,10 @@ If you're running TemperBot in a Proxmox LXC container, you'll need to configure
      lxc.cap.drop:
      lxc.mount.auto: proc:rw sys:rw
      lxc.cgroup2.devices.allow: c 235:* rwm
-     lxc.mount.entry: /dev/hidraw0 dev/hidraw0 none bind,optional,create=file
-     lxc.mount.entry: /dev/hidraw1 dev/hidraw1 none bind,optional,create=file
+     lxc.mount.entry: /dev/temperbot dev/temperbot none bind,optional,create=file
      ```
 
-> **Note:** Include the relevant hidraw* that applies to your device. They will not necessarily be hidraw0 and hidraw1.
+> **Note:** The `/dev/temperbot` symlink is created by the udev rule above and keeps the LXC config stable even when Proxmox renumbers the underlying `/dev/hidrawN` device after a reboot.
 
 3. Restart the LXC container after making these changes.
 
@@ -95,6 +94,13 @@ If you're running TemperBot in a Proxmox LXC container, you'll need to configure
    ```bash
    docker-compose up --build
    ```
+
+By default, Docker Compose maps `/dev/temperbot` into the container and sets `TEMPERATURE_DEVICE=/dev/temperbot`. If you use a different stable device path, set it before starting Compose:
+
+```bash
+export TEMPERATURE_DEVICE=/dev/my-temper-device
+docker-compose up --build
+```
 
 ## Usage
 

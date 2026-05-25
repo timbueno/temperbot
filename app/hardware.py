@@ -1,5 +1,5 @@
-from app.temper import Temper
-from config import TEMPERATURE_SOURCE
+from app.temper import Temper, USBRead
+from config import TEMPERATURE_DEVICE, TEMPERATURE_SOURCE
 
 def read_temperature() -> float:
     """Read temperature from a USB temperature sensor using the Temper class.
@@ -7,8 +7,11 @@ def read_temperature() -> float:
     If no sensor is found or there's an error, returns None.
     """
     try:
-        temper = Temper()
-        results = temper.read()
+        if TEMPERATURE_DEVICE:
+            results = [USBRead(TEMPERATURE_DEVICE).read()]
+        else:
+            temper = Temper()
+            results = temper.read()
         
         if not results:
             print("No temperature sensors found")

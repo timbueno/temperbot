@@ -7,6 +7,7 @@ from config import (
     POLL_INTERVAL_MINUTES,
     TEMPERATURE_THRESHOLD,
     TEMPERATURE_NORMAL_MARGIN,
+    TEMPERATURE_DEVICE,
     TEMPERATURE_SOURCE,
     PUSHOVER_USER_KEY,
     PUSHOVER_API_TOKEN,
@@ -48,6 +49,7 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(config.POLL_INTERVAL_MINUTES, 1)
         self.assertEqual(config.TEMPERATURE_THRESHOLD, 23.5)
         self.assertEqual(config.TEMPERATURE_NORMAL_MARGIN, 1.0)
+        self.assertEqual(config.TEMPERATURE_DEVICE, '')
         self.assertEqual(config.TEMPERATURE_SOURCE, 'external')
         self.assertEqual(config.NOTIFICATION_COOLDOWN, timedelta(hours=1))
         
@@ -117,6 +119,17 @@ class TestConfig(unittest.TestCase):
         importlib.reload(config)
         
         self.assertEqual(config.TEMPERATURE_SOURCE, 'internal')
+
+    def test_temperature_device(self):
+        """Test temperature device path configuration."""
+        os.environ['TEMPERATURE_DEVICE'] = '/dev/temperbot'
+
+        # Reload config
+        import importlib
+        import config
+        importlib.reload(config)
+
+        self.assertEqual(config.TEMPERATURE_DEVICE, '/dev/temperbot')
         
     def test_notification_cooldown(self):
         """Test notification cooldown configuration."""

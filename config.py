@@ -34,6 +34,7 @@ TEMPERATURE_NORMAL_MARGIN = safe_float(os.getenv('TEMPERATURE_NORMAL_MARGIN'), 1
 
 # Temperature source configuration
 TEMPERATURE_SOURCE = os.getenv('TEMPERATURE_SOURCE', 'external').lower()  # 'internal' or 'external'
+TEMPERATURE_DEVICE = os.getenv('TEMPERATURE_DEVICE', '').strip()
 
 # Pushover configuration
 PUSHOVER_USER_KEY = os.getenv('PUSHOVER_USER_KEY', 'your_pushover_user_key_here')

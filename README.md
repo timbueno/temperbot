@@ -20,21 +20,40 @@ A robust temperature monitoring system built with Python, Flask, and Docker. Thi
 
 > **Note:** Different TEMPer device models may have different vendor and product IDs. For a comprehensive list of supported devices and their IDs, please refer to the [temper library documentation](https://github.com/ccwienk/temper). The documentation includes detailed information about various TEMPer models and their corresponding USB identifiers.
 
-To ensure proper access to the temperature sensor and give it a stable name, create a udev rule. Create a new file at `/etc/udev/rules.d/99-temperbot.rules` with the following content:
+To ensure proper access to the temperature sensor and give it a stable name, create a udev rule on the Proxmox host. The TEMPer device can expose more than one `hidraw` interface, and only one of them responds to the firmware and temperature commands. A broad vendor/product rule may point `/dev/temperbot` at the wrong interface.
 
+First, identify the working `hidraw` interface:
+
+```bash
+ls -l /sys/class/hidraw/
 ```
-SUBSYSTEM=="hidraw", ATTRS{idVendor}=="3553", ATTRS{idProduct}=="a001", SYMLINK+="temperbot", MODE="0666", GROUP="appuser"
+
+For example, a working TEMPer interface may look like this:
+
+```text
+hidraw4 -> ../../devices/.../usb1/1-8/1-8:1.1/0003:3553:A001.0005/hidraw/hidraw4
 ```
+
+In that example, create `/etc/udev/rules.d/99-temperbot.rules` with the USB interface path `1-8:1.1`:
+
+```udev
+KERNEL=="hidraw*", SUBSYSTEM=="hidraw", KERNELS=="1-8:1.1", SYMLINK+="temperbot", MODE="0666"
+```
+
+If your device is on a different USB port, replace `1-8:1.1` with the value shown in your `/sys/class/hidraw/` output for the working TEMPer interface. The `:1.1` interface was required for the known working TEMPer device; the `:1.0` interface opened successfully but did not return firmware data.
 
 After creating the rule, reload the udev rules:
+
 ```bash
 sudo udevadm control --reload-rules
-sudo udevadm trigger
+sudo udevadm trigger --subsystem-match=hidraw
+ls -l /dev/temperbot
 ```
 
-Make sure to create the `appuser` group if it doesn't exist:
-```bash
-sudo groupadd appuser
+Confirm that `/dev/temperbot` points at the expected `hidraw` node. For the example above:
+
+```text
+/dev/temperbot -> hidraw4
 ```
 
 ### Proxmox LXC Configuration
@@ -101,6 +120,25 @@ By default, Docker Compose maps `/dev/temperbot` into the container and sets `TE
 export TEMPERATURE_DEVICE=/dev/my-temper-device
 docker-compose up --build
 ```
+
+If deploying with Portainer, make sure the stack includes the equivalent device mapping and environment variable:
+
+```yaml
+devices:
+  - "/dev/temperbot:/dev/temperbot"
+environment:
+  - TEMPERATURE_DEVICE=/dev/temperbot
+```
+
+To verify the device from inside the running container:
+
+```bash
+printenv TEMPERATURE_DEVICE
+ls -l /dev/temperbot /dev/hidraw* 2>/dev/null
+tail -100 /var/log/supervisor/poller.out.log
+```
+
+If the poller logs `Cannot read device firmware identifier`, `/dev/temperbot` is likely pointing at the wrong HID interface. Re-check the host udev rule and confirm the symlink points at the known working `hidraw` node.
 
 ## Usage
 

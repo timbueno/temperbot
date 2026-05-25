@@ -36,6 +36,24 @@ function formatTime(timestamp) {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
+function getTemperatureScale(temperatures) {
+    const validTemperatures = temperatures.filter(Number.isFinite);
+    if (!validTemperatures.length) {
+        return {};
+    }
+
+    const minTemperature = Math.min(...validTemperatures);
+    const maxTemperature = Math.max(...validTemperatures);
+    const range = maxTemperature - minTemperature;
+    const minimumPadding = isCelsius ? 0.5 : 1.0;
+    const padding = Math.max(range * 0.25, minimumPadding);
+
+    return {
+        min: minTemperature - padding,
+        max: maxTemperature + padding
+    };
+}
+
 function updateLatestTemperature() {
     console.log('Fetching latest temperature...');
     return fetch('/temperature/latest')
@@ -100,6 +118,7 @@ function updateChartDisplay() {
     const temperatures = rawData.map(reading => 
         isCelsius ? reading.temperature : celsiusToFahrenheit(reading.temperature)
     ).reverse();
+    const temperatureScale = getTemperatureScale(temperatures);
 
     if (temperatureChart) {
         temperatureChart.data.labels = labels;
@@ -111,6 +130,8 @@ function updateChartDisplay() {
         temperatureChart.data.datasets[1].label = isCelsius ? 
             `Threshold (${temperatureThreshold}°C)` : 
             `Threshold (${celsiusToFahrenheit(temperatureThreshold).toFixed(1)}°F)`;
+        temperatureChart.options.scales.y.min = temperatureScale.min;
+        temperatureChart.options.scales.y.max = temperatureScale.max;
         temperatureChart.update();
         console.log('Chart updated with new data');
     } else {
@@ -154,8 +175,14 @@ function updateChartDisplay() {
                 scales: {
                     y: {
                         beginAtZero: false,
+                        min: temperatureScale.min,
+                        max: temperatureScale.max,
                         grid: {
                             color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        ticks: {
+                            maxTicksLimit: 7,
+                            callback: value => Number(value).toFixed(1)
                         }
                     },
                     x: {

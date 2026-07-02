@@ -1,4 +1,22 @@
 let isCelsius = true;
+
+// Cookie management functions
+function setCookie(name, value, days = 365) {
+    const expires = new Date();
+    expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+}
+
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+}
 let temperatureChart;
 let rawData = [];  // Store the raw data in Celsius
 let originalTemp;  // Will be initialized from data attribute
@@ -28,6 +46,10 @@ function toggleUnit() {
     }
     
     isCelsius = !isCelsius;
+    
+    // Save preference to cookie
+    setCookie('temperatureUnit', isCelsius ? 'celsius' : 'fahrenheit');
+    
     updateChartDisplay();
 }
 
@@ -255,6 +277,21 @@ document.addEventListener('DOMContentLoaded', function() {
     temperatureThreshold = parseFloat(document.body.dataset.threshold);
     const isAlert = document.body.dataset.isAlert === 'true';
     const isNormal = document.body.dataset.isNormal === 'true';
+    
+    // Load temperature unit preference from cookie
+    const savedUnit = getCookie('temperatureUnit');
+    if (savedUnit === 'fahrenheit') {
+        isCelsius = false;
+        // Update display to Fahrenheit
+        const tempValue = document.getElementById('temperature-value');
+        const tempUnit = document.getElementById('temperature-unit');
+        const toggleButton = document.querySelector('.unit-toggle');
+        
+        const fahrenheit = celsiusToFahrenheit(originalTemp);
+        tempValue.textContent = fahrenheit.toFixed(1);
+        tempUnit.textContent = '°F';
+        toggleButton.textContent = 'Switch to °C';
+    }
     
     console.log('Initial values:', {
         originalTemp,
